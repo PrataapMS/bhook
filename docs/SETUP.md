@@ -11,7 +11,7 @@ When you're done, `npm run check:keys` should show all green ticks.
 
 ## 2. Google Places API (30 min)
 
-Use a billing account with an **Indian billing address**: India has its own price list with a 7x larger free allowance for the SKU this app uses (see [specs/06](specs/06-cost-and-guardrails.md)).
+Use a billing account with an **Indian billing address**: India has its own price list with a 7x larger free allowance for the SKU this app uses.
 
 - [ ] Go to console.cloud.google.com and create a project, e.g. `bhook`.
 - [ ] Billing: create or attach a billing account (card required even for free usage). Indian cards may need international/online transactions enabled.
@@ -34,16 +34,21 @@ Use a billing account with an **Indian billing address**: India has its own pric
 
 ## 4. Deploy to Netlify (15 min)
 
-- [ ] Create a GitHub repo and push this project (`.env` is gitignored, keep it that way).
-- [ ] At app.netlify.com: **Add new project, Import from Git**, pick the repo. Build settings are read from `netlify.toml`, so accept the defaults.
-- [ ] Add environment variables, either in Site configuration, Environment variables, or from your terminal:
+Deploys go through GitHub Actions only, so nothing reaches production without your approval. Netlify's own Git builds are disabled in `netlify.toml`.
+
+- [ ] Create the site **without** linking it to Git:
   ```bash
   npx netlify login
-  npx netlify link        # pick the site you just created
+  npx netlify sites:create   # note the Site ID it prints
+  npx netlify link --id <site-id>
   npx netlify env:import .env
   ```
-- [ ] Trigger a deploy. Open `https://<your-site>.netlify.app/api/health`: both services should say `"live"`.
-- [ ] Free-plan note: production deploys cost credits (about 20/month fit in the free allowance). Iterate locally and on deploy previews; deploy to production a few times a week.
+- [ ] Create a personal access token in Netlify (User settings, Applications).
+- [ ] In GitHub, Settings, Secrets and variables, Actions: add `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID`.
+- [ ] In GitHub, Settings, Environments: create `production` with yourself as a **required reviewer**.
+- [ ] Bump the major version (e.g. `npm version major`) and push to `main`. The **Deploy** workflow waits for your approval, deploys, smoke-tests `/api/health` and tags a release. You can also run it by hand from the Actions tab.
+- [ ] Open `https://<your-site>.netlify.app/api/health`: both services should say `"live"`.
+- [ ] Free-plan note: production deploys cost Netlify credits. Iterate locally and deploy only for releases.
 
 ## 5. Install on your phone (2 min)
 
