@@ -103,6 +103,41 @@ export interface ReviewAnalysis {
   mock: boolean;
 }
 
+export type MenuMethod = "website" | "web_search";
+
+export interface MenuRequest {
+  placeId: string;
+  name: string;
+  address: string;
+  websiteUri?: string;
+  /** Optional OpenRouter slug; must be in OPENROUTER_ALLOWED_MODELS. */
+  model?: string;
+}
+
+export interface MenuItem {
+  name: string;
+  /** Rupees, as printed by the source. Missing means the source didn't show one. */
+  price?: number;
+  section?: string;
+  veg?: boolean;
+}
+
+export interface MenuResult {
+  status: "found" | "partial" | "not_found";
+  items: MenuItem[];
+  /** e.g. "Most mains ₹280–420". */
+  priceNote?: string;
+  sources: { url: string; title?: string }[];
+  /** ISO date the data was extracted. */
+  asOf: string;
+  method: MenuMethod;
+  model: string;
+  /** Short reason when not found, e.g. "No website listed". */
+  reason?: string;
+  cached: boolean;
+  mock: boolean;
+}
+
 export interface HealthResponse {
   google: "live" | "mock";
   openrouter: "live" | "mock";

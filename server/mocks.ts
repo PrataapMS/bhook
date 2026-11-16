@@ -1,6 +1,6 @@
 // Demo data so the whole UI works with no API keys. Places are generated around
 // whatever location you search from, so distances and ranking behave realistically.
-import type { AnalyzeRequest, LatLng, Place, ReviewAnalysis } from "../shared/types";
+import type { AnalyzeRequest, LatLng, MenuMethod, MenuRequest, MenuResult, Place, ReviewAnalysis } from "../shared/types";
 
 export const DEMO_CENTER: LatLng & { label: string } = { lat: 12.9352, lng: 77.6245, label: "Koramangala, Bengaluru (demo)" };
 
@@ -76,5 +76,29 @@ export function mockAnalysis(req: AnalyzeRequest): ReviewAnalysis {
     trend: "steady",
     model: "demo",
     mock: true,
+  };
+}
+
+/** Demo menus: a website hit when the place lists a site, otherwise a partial web-search answer. */
+export function mockMenu(req: MenuRequest, method: MenuMethod): MenuResult {
+  const base = { asOf: new Date().toISOString().slice(0, 10), method, model: "demo", cached: false, mock: true };
+  const search = `https://www.google.com/search?q=${encodeURIComponent(`${req.name} menu`)}`;
+  if (method === "website") {
+    return { ...base, status: "not_found", items: [], sources: [], reason: "No website listed" };
+  }
+  return {
+    ...base,
+    status: "found",
+    items: [
+      { name: "Chicken biryani", price: 320, section: "Biryani", veg: false },
+      { name: "Veg dum biryani", price: 260, section: "Biryani", veg: true },
+      { name: "Ghee podi idli", price: 110, section: "Tiffin", veg: true },
+      { name: "Paneer butter masala", price: 290, section: "Mains", veg: true },
+      { name: "Gongura mutton", price: 420, section: "Mains", veg: false },
+      { name: "Filter coffee", price: 60, section: "Drinks", veg: true },
+      { name: "Gulab jamun", section: "Desserts", veg: true },
+    ],
+    priceNote: "Most mains ₹260–420",
+    sources: [{ url: search, title: "Demo source" }],
   };
 }

@@ -15,10 +15,33 @@ interface ChatOptions {
   user: string;
   maxTokens: number;
   schema?: { name: string; schema: object };
+  /** OpenRouter plugins, e.g. [{ id: "web", max_results: 5 }]. */
+  plugins?: object[];
+  signal?: AbortSignal;
+}
+
+export interface Citation {
+  url: string;
+  title?: string;
+}
+
+interface ChatResponse {
+  choices?: {
+    message?: {
+      content?: string;
+      annotations?: { type?: string; url_citation?: { url?: string; title?: string } }[];
+    };
+  }[];
 }
 
 export async function chat(opts: ChatOptions): Promise<string> {
+  return (await complete(opts)).content;
+}
+
+/** Like chat(), but also returns the URLs the web plugin cited. */
+export async function complete(opts: ChatOptions): Promise<{ content: string; citations: Citation[] }> {
   const res = await fetch(ENDPOINT, {
+    signal: opts.signal,
     method: "POST",
     headers: {
       "content-type": "application/json",
@@ -36,6 +59,7 @@ export async function chat(opts: ChatOptions): Promise<string> {
       ...(opts.schema
         ? { response_format: { type: "json_schema", json_schema: { ...opts.schema, strict: true } } }
         : {}),
+      ...(opts.plugins ? { plugins: opts.plugins } : {}),
     }),
   });
   if (!res.ok) {
@@ -48,8 +72,12 @@ export async function chat(opts: ChatOptions): Promise<string> {
     }
     throw new UpstreamError("openrouter", res.status, message);
   }
-  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-  return data.choices?.[0]?.message?.content ?? "";
+  const data = (await res.json()) as ChatResponse;
+  const message = data.choices?.[0]?.message;
+  const citations = (message?.annotations ?? [])
+    .filter((a) => a.type === "url_citation" && typeof a.url_citation?.url === "string")
+    .map((a) => ({ url: a.url_citation!.url!, title: a.url_citation!.title || undefined }));
+  return { content: message?.content ?? "", citations };
 }
 
 /** Tolerates code fences or prose around the JSON, since not every model honours response_format. */
