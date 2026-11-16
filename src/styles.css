@@ -1,0 +1,255 @@
+/* Bhook: the kitchen order ticket (KOT). Steel-counter background, white slips,
+   ballpoint-blue ink, carbon-copy pink for selections, handwriting only for ranks and verdicts. */
+
+:root {
+  --desk: #e6ecf1;
+  --paper: #ffffff;
+  --ink: #1f2a5a;
+  --ink-soft: #56608a;
+  --carbon: #f6c9d3;
+  --carbon-ink: #7a2140;
+  --chilli: #b3261e;
+  --leaf: #2e7d4f;
+  --rule: #c9d3e0;
+
+  --sans: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --hand: "Kalam", "Segoe Print", "Bradley Hand", cursive;
+
+  --step--1: 0.875rem;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: 1.6rem;
+  --step-3: 2.6rem;
+
+  color-scheme: light dark;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --desk: #12161f;
+    --paper: #1b2130;
+    --ink: #dce3f5;
+    --ink-soft: #9aa5c8;
+    --carbon: #5a2e3b;
+    --carbon-ink: #ffd9e2;
+    --chilli: #ff8a80;
+    --leaf: #7fd1a0;
+    --rule: #2c3447;
+  }
+}
+
+*, *::before, *::after { box-sizing: inherit; }
+
+body {
+  margin: 0;
+  background: var(--desk);
+  color: var(--ink);
+  font: 400 var(--step-0) / 1.5 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { margin: 0; line-height: 1.2; font-weight: 700; }
+p { margin: 0; }
+
+.page {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 6rem;
+}
+
+.muted { color: var(--ink-soft); }
+.error { color: var(--chilli); }
+.open { color: var(--leaf); font-weight: 600; }
+.closed { color: var(--chilli); font-weight: 600; }
+
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* ---------- wordmark & hero ---------- */
+
+.wordmark {
+  font: 700 var(--step-3) / 1 var(--hand);
+  letter-spacing: -0.01em;
+}
+.wordmark--small { font-size: var(--step-1); }
+
+.hero { padding: 1.5rem 0 1.25rem; }
+.hero__line { margin-top: 0.5rem; max-width: 26rem; color: var(--ink-soft); font-size: var(--step-1); line-height: 1.35; }
+
+/* ---------- form panels ---------- */
+
+.panel {
+  background: var(--paper);
+  border-radius: 0.5rem;
+  padding: 1.25rem 1rem;
+  margin-bottom: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+.panel h2 { font-size: var(--step-1); }
+
+.field { display: grid; gap: 0.35rem; font-size: var(--step--1); color: var(--ink-soft); }
+.field input, .field select {
+  font: inherit;
+  font-size: var(--step-0);
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid var(--rule);
+  border-radius: 0;
+  padding: 0.5rem 0;
+}
+.field input:focus { outline: none; border-bottom-color: var(--ink); }
+.field--inline { grid-template-columns: auto 1fr; align-items: center; gap: 0.75rem; }
+.field--inline select { border: 1px solid var(--rule); border-radius: 0.375rem; padding: 0.4rem 0.5rem; max-width: 100%; }
+
+.chips { border: 0; margin: 0; padding: 0; min-width: 0; }
+.chips legend { padding: 0; margin-bottom: 0.5rem; font-size: var(--step--1); color: var(--ink-soft); }
+.chips__row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.chip {
+  font: 500 var(--step--1) / 1 var(--sans);
+  color: var(--ink);
+  background: transparent;
+  border: 1.5px solid var(--rule);
+  border-radius: 999px;
+  padding: 0.6rem 0.9rem;
+  min-height: 2.5rem;
+  cursor: pointer;
+}
+.chip[aria-pressed="true"] {
+  background: var(--carbon);
+  border-color: var(--carbon-ink);
+  color: var(--carbon-ink);
+  font-weight: 700;
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.6rem 1rem;
+  font: 600 var(--step--1) / 1 var(--sans);
+  color: var(--ink);
+  background: transparent;
+  border: 1.5px solid var(--ink);
+  border-radius: 0.375rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn--primary { background: var(--ink); color: var(--paper); }
+.btn--wide { width: 100%; font-size: var(--step-0); min-height: 3.25rem; }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.link {
+  font: 600 var(--step--1) var(--sans);
+  color: var(--ink);
+  background: none;
+  border: 0;
+  padding: 0.5rem 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.cta {
+  position: sticky;
+  bottom: 0;
+  padding: 0.75rem 0 calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, var(--desk) 75%, transparent);
+  display: grid;
+  gap: 0.5rem;
+}
+
+/* ---------- results ---------- */
+
+.topbar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; }
+.results:focus { outline: none; }
+.results__title { font-size: var(--step-2); margin-top: 0.5rem; }
+.results > .muted { margin: 0.25rem 0 1rem; }
+
+.notice {
+  background: var(--carbon);
+  color: var(--carbon-ink);
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.375rem;
+  font-size: var(--step--1);
+  margin-bottom: 1rem;
+}
+
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
+
+/* The slip. Rank 1 is the one loud thing on the page: a torn-off KOT with perforations. */
+.slip {
+  background: var(--paper);
+  border-radius: 0.375rem;
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+.slip--featured {
+  border-radius: 0 0 0.375rem 0.375rem;
+  padding-top: 1.5rem;
+  /* Perforated tear-off edge: bite a row of half-circles out of the top. */
+  -webkit-mask: radial-gradient(circle 5px at 6px 0, transparent 98%, #000 100%) 0 0 / 12px 100% repeat-x;
+  mask: radial-gradient(circle 5px at 6px 0, transparent 98%, #000 100%) 0 0 / 12px 100% repeat-x;
+}
+
+.slip__head { display: grid; grid-template-columns: auto 1fr; gap: 0.75rem; align-items: start; }
+.slip__head h3 { font-size: var(--step-1); }
+.slip__sub { font-size: var(--step--1); color: var(--ink-soft); }
+
+.slip__rank {
+  font: 700 var(--step-2) / 1 var(--hand);
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--ink);
+  border-radius: 50% 46% 52% 48%;
+  transform: rotate(-4deg);
+}
+.slip--featured .slip__rank {
+  width: 3.25rem;
+  height: 3.25rem;
+  font-size: var(--step-3);
+  background: var(--carbon);
+  color: var(--carbon-ink);
+  border-color: var(--carbon-ink);
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin: 0;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--rule);
+}
+.facts div { display: grid; }
+.facts dt { font-size: 0.75rem; color: var(--ink-soft); }
+.facts dd { margin: 0; font-weight: 600; }
+
+.reasons { margin: 0; padding-left: 1.1rem; font-size: var(--step--1); color: var(--ink-soft); }
+
+.summary { display: grid; gap: 0.35rem; font-size: var(--step--1); }
+.summary:empty { display: none; }
+.summary__verdict {
+  font: 400 var(--step-1) / 1.35 var(--hand);
+  color: var(--ink);
+}
+
+.actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.empty { background: var(--paper); border-radius: 0.375rem; padding: 1.25rem 1rem; display: grid; gap: 1rem; }
+
+.footer { margin-top: 2rem; display: grid; gap: 1rem; font-size: var(--step--1); color: var(--ink-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

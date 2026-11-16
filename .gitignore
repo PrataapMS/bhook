@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+.netlify
+*.log
+dev-dist
+deno.lock
+
+# Local-only planning (not published)
+docs/PLAN.md
+docs/specs/
+CLAUDE.local.md

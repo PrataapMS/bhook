@@ -1,0 +1,31 @@
+{
+  "name": "bhook",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "check:keys": "node --env-file-if-exists=.env scripts/check-keys.mjs"
+  },
+  "dependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^6.0.2",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "netlify-cli": "^27.11.2",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.3",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.0.3"
+  }
+}
