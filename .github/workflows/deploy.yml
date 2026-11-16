@@ -1,0 +1,94 @@
+name: Deploy
+
+# Production deploys happen only when the major version in package.json changes
+# (e.g. 1.x -> 2.0.0), or on a manual run, and always wait for approval on the
+# `production` environment. Nothing reaches Netlify without that approval.
+
+on:
+  push:
+    branches: [main]
+    paths: [package.json]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: Why deploy outside a major version change?
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  version:
+    name: Check major version
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.check.outputs.deploy }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: check
+        env:
+          BEFORE: ${{ github.event.before }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          major=${version%%.*}
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          prev=""
+          if [ -n "$BEFORE" ] && git cat-file -e "$BEFORE" 2>/dev/null; then
+            prev=$(git show "$BEFORE:package.json" | node -p "JSON.parse(require('fs').readFileSync(0)).version")
+          fi
+          echo "previous=${prev:-none} current=$version"
+          if [ -n "$prev" ] && [ "${prev%%.*}" != "$major" ] && [ "$major" -ge 1 ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy:
+    name: Deploy to Netlify
+    needs: version
+    if: needs.version.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: ${{ steps.netlify.outputs.url }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - id: netlify
+        name: Build and deploy
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          test -n "$NETLIFY_AUTH_TOKEN" && test -n "$NETLIFY_SITE_ID" || { echo "::error::Set NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID secrets"; exit 1; }
+          npx netlify deploy --build --prod --json --message "v${{ needs.version.outputs.version }}" > deploy.json
+          echo "url=$(node -p "require('./deploy.json').url")" >> "$GITHUB_OUTPUT"
+      - name: Smoke test
+        run: curl --fail --silent --show-error --retry 3 "${{ steps.netlify.outputs.url }}/api/health"
+      - name: Tag and release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ needs.version.outputs.version }}
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --generate-notes
