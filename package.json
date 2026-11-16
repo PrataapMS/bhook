@@ -2,6 +2,22 @@
   "name": "bhook",
   "private": true,
   "version": "0.1.0",
+  "description": "Phone-first PWA that finds nearby restaurants, ranks them by what reviewers say, and tells you what to order.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PrataapMS/bhook.git"
+  },
+  "bugs": "https://github.com/PrataapMS/bhook/issues",
+  "homepage": "https://github.com/PrataapMS/bhook#readme",
+  "keywords": [
+    "pwa",
+    "restaurants",
+    "google-places",
+    "llm",
+    "netlify",
+    "react"
+  ],
   "type": "module",
   "engines": {
     "node": ">=24"
